@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'continuous_builder'
+
+class SpecRunner < ContinuousBuilder
+  watches :lib,
+    :files  => "lib/**/*.rb",
+    :update => :spec_for_lib
+    
+  watches :specs,
+    :files => "spec/**/*.rb",
+    :update => :spec_for_spec
+ 
+  def spec path
+    system "/usr/bin/ruby1.8 -S /usr/bin/spec -O spec/spec.opts #{path}"  
+  end
+ 
+  def spec_for_lib path
+    spec path.to_s.gsub /lib/, 'spec'
+  end 
+  
+  def spec_for_spec path
+    spec path
+  end
+end
+
+w = SpecRunner.new
+w.build_all
+w.build_continuously
